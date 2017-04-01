@@ -31,11 +31,14 @@ CustomWindow::CustomWindow(QWidget *parent)
 	pLayout->setSpacing(0);
 	pLayout->setContentsMargins(5, 0, 5, 0);
 
+	QWidget *pTitleBar = new QWidget(this);
+	pTitleBar->setLayout(pLayout);
+
 	m_pLayout = new QVBoxLayout(this);
-	m_pLayout->addLayout(pLayout);
+	m_pLayout->addWidget(pTitleBar);
 	m_pLayout->addStretch();
-	pLayout->setSpacing(0);
-	pLayout->setContentsMargins(0, 0, 0, 0);
+	m_pLayout->setSpacing(0);
+	m_pLayout->setContentsMargins(0, 0, 0, 0);
 
 	setLayout(m_pLayout);
 
@@ -47,6 +50,11 @@ CustomWindow::CustomWindow(QWidget *parent)
 CustomWindow::~CustomWindow()
 {
 
+}
+
+void CustomWindow::onClicked()
+{
+	this->window()->close();
 }
 
 bool CustomWindow::eventFilter(QObject * obj, QEvent * event)

@@ -50,44 +50,38 @@
     <ClCompile Include="GeneratedFiles\qrc_mainwidget.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="kdialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_kdialog.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_cdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_kdialog.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_cdialog.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="cdialog.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="mainwidget.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="mainwidget.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="kdialog.h">
+    <CustomBuild Include="cdialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_mainwidget.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="kfocusswitchhelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="kwintools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="kwinres.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winres.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cfocusswitchhelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wintools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

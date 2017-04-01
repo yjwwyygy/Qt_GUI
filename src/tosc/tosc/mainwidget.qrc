@@ -1,4 +1,25 @@
 <RCC>
-    <qresource prefix="MainWidget">
+    <qresource prefix="/tosc/img/win">
+        <file alias="win_close">Resources/images/win/win_close.png</file>
+        <file alias="win_max">Resources/images/win/win_max.png</file>
+        <file alias="win_min">Resources/images/win/win_min.png</file>
+        <file alias="win_restore">Resources/images/win/win_restore.png</file>
+        <file alias="win_border">Resources/images/win/win_border.png</file>
+        <file alias="win_border_bottom">Resources/images/win/win_border_bottom.png</file>
+        <file alias="win_border_deactive">Resources/images/win/win_border_deactive.png</file>
+        <file alias="win_border_left">Resources/images/win/win_border_left.png</file>
+        <file alias="win_border_right">Resources/images/win/win_border_right.png</file>
+        <file alias="win_border_top">Resources/images/win/win_border_top.png</file>
+        <file alias="win_corner">Resources/images/win/win_corner.png</file>
+        <file alias="win_corner_bottomleft">Resources/images/win/win_corner_bottomleft.png</file>
+        <file alias="win_corner_deactive">Resources/images/win/win_corner_deactive.png</file>
+        <file alias="win_corner_lefttop">Resources/images/win/win_corner_lefttop.png</file>
+        <file alias="win_corner_rightbottom">Resources/images/win/win_corner_rightbottom.png</file>
+        <file alias="win_corner_topright">Resources/images/win/win_corner_topright.png</file>
+        <file alias="win_dropdown">Resources/images/win/win_dropdown.png</file>
+        <file alias="win_setting">Resources/images/win/win_setting.png</file>
+        <file alias="win_title_bg">Resources/images/win/win_title_bg.png</file>
+        <file alias="win_title_bg_active">Resources/images/win/win_title_bg_active.png</file>
+        <file alias="win_title_bg_deactive">Resources/images/win/win_title_bg_deactive.png</file>
     </qresource>
 </RCC>
