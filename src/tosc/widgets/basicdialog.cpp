@@ -1,5 +1,7 @@
 #include "basicdialog.h"
 #include <QMouseEvent>
+#include <QAction>
+#include <QToolButton>
 
 BasicDialog::BasicDialog(QWidget *parent, int nShadowWidth, int nBorderWidth)
 	: QDialog(parent)
@@ -15,6 +17,11 @@ BasicDialog::~BasicDialog()
 }
 
 QSize BasicDialog::sizeHint() const
+{
+	return QSize(400, 400);
+}
+
+QSize BasicDialog::minimumSizeHint() const
 {
 	return QSize(400, 400);
 }
@@ -74,6 +81,7 @@ void BasicDialog::mousePressEvent(QMouseEvent * event)
 			m_bMouseOnTitleBar = false;
 			m_bMouseOnBorder = true;
 			m_pMousePressPos = event->pos();
+			m_pPressDragGlobalPos = event->globalPos();
 		}
 	}
 }
@@ -121,19 +129,97 @@ void BasicDialog::mouseReleaseEvent(QMouseEvent * event)
 	}
 }
 
+void BasicDialog::mouseDoubleClickEvent(QMouseEvent * event)
+{
+	if (isMaximumButtonVisible() && titleRect().contains(event->pos()))
+	{
+		doActionMaxTriggered();
+	}
+}
+
+void BasicDialog::layoutTitleBarWidgets()
+{
+	// 计算最左边的起始位置
+
+	// 计算最右边的起始位置
+}
+
+void BasicDialog::doActionCloseTriggered()
+{
+	close();
+}
+
+void BasicDialog::doActionMaxTriggered()
+{
+	if (isMaximized())
+	{
+		showNormal();
+		m_pActMax->setIcon(QIcon(""));
+		m_pActMax->setText(QStringLiteral("最大化"));
+	}
+	else
+	{
+		showMaximized();
+		m_pActMax->setIcon(QIcon(""));
+		m_pActMax->setText(QStringLiteral("还原"));
+	}
+}
+
+void BasicDialog::doActionMinTriggered()
+{
+	showMinimized();
+}
+
 void BasicDialog::setupUi()
 {
 	// 只有调用该函数，才能捕获鼠标未按下时的鼠标移动事件
 	setMouseTracking(true);
 	setWindowFlags(Qt::FramelessWindowHint | windowFlags());
+
+	m_pActMin = new QAction(QIcon(""), QStringLiteral("最小化"), this);
+	connect(m_pActMin, SIGNAL(triggered()), this, SLOT(doActionMinTriggered()));
+	m_pActMax = new QAction(QIcon(""), QStringLiteral("最大化"), this);
+	connect(m_pActMax, SIGNAL(triggered()), this, SLOT(doActionMaxTriggered()));
+	m_pActClose = new QAction(QIcon(""), QStringLiteral("关闭"), this);
+	connect(m_pActClose, SIGNAL(triggered()), this, SLOT(doActionCloseTriggered()));
+
+	m_pSysCloseButton = new QToolButton(this);
+	//m_pSysCloseButton->setMouseTracking(true);
+	//m_pSysCloseButton->setObjectName("win-close");
+	m_pSysCloseButton->setAutoRaise(true);
+	m_pSysCloseButton->setFocusPolicy(Qt::NoFocus);
+	m_pSysCloseButton->setVisible(m_bCloseBtnVisible);
+	m_pSysCloseButton->setDefaultAction(m_pActClose);
+	m_pSysCloseButton->resize(m_nTitleBtnWidth + 8, m_nTitleBtnHeight);
+	m_pSysCloseButton->setIconSize(QSize(m_nTitleBtnWidth + 8, m_nTitleBtnHeight));
+	m_oTitleBarWidgets.append(TitleBarWidgetItem(m_pSysCloseButton, Qt::AlignRight + Qt::AlignTop));
+
+	m_pSysMaxButton = new QToolButton(this);
+	//m_pSysMaxButton->setMouseTracking(true);
+	//m_pSysMaxButton->setObjectName("win-max");
+	m_pSysMaxButton->setAutoRaise(true);
+	m_pSysMaxButton->setFocusPolicy(Qt::NoFocus);
+	m_pSysMaxButton->setVisible(m_bMaxBtnVisible);
+	m_pSysMaxButton->setDefaultAction(m_pActMax);
+	m_pSysMaxButton->resize(m_nTitleBtnWidth, m_nTitleBtnHeight);
+	m_pSysMaxButton->setIconSize(QSize(m_nTitleBtnWidth, m_nTitleBtnHeight));
+	m_oTitleBarWidgets.append(TitleBarWidgetItem(m_pSysMaxButton, Qt::AlignRight + Qt::AlignTop));
+
+	m_pSysMinButton = new QToolButton(this);
+	//m_pSysMinButton->setMouseTracking(true);
+	//m_pSysMinButton->setObjectName("win-min");
+	m_pSysMinButton->setAutoRaise(true);
+	m_pSysMinButton->setFocusPolicy(Qt::NoFocus);
+	m_pSysMinButton->setVisible(m_bMinBtnVisible);
+	m_pSysMinButton->setDefaultAction(m_pActMin);
+	m_pSysMinButton->resize(m_nTitleBtnWidth, m_nTitleBtnHeight);
+	m_pSysMinButton->setIconSize(QSize(m_nTitleBtnWidth, m_nTitleBtnHeight));
+	m_oTitleBarWidgets.append(TitleBarWidgetItem(m_pSysMinButton, Qt::AlignRight + Qt::AlignTop));
 }
 
 bool BasicDialog::isMouseOnTitleBar(const QPoint & pos)
 {
-	return QRect(m_nShadowWidth + m_nBorderWidth, 
-				m_nShadowWidth + m_nBorderWidth, 
-				width() - 2*(m_nShadowWidth + m_nBorderWidth), 
-				m_nTitleBarHeight).contains(pos);
+	return titleRect().contains(pos);
 }
 
 bool BasicDialog::isMouseOnBorder(const QPoint & pos)
@@ -142,6 +228,14 @@ bool BasicDialog::isMouseOnBorder(const QPoint & pos)
 			|| topBorderRect().contains(pos)
 			|| rightBorderRect().contains(pos)
 			|| bottomBorderRect().contains(pos);
+}
+
+QRect BasicDialog::titleRect() const
+{
+	return QRect(m_nShadowWidth + m_nBorderWidth,
+				m_nShadowWidth + m_nBorderWidth,
+				width() - 2 * (m_nShadowWidth + m_nBorderWidth),
+				m_nTitleBarHeight);
 }
 
 QRect BasicDialog::leftBorderRect() const
@@ -215,10 +309,12 @@ void BasicDialog::setMouseResizeCursor(const QPoint & pos)
 
 void BasicDialog::changeSize(QMouseEvent * event)
 {
-	QPoint topLeft = geometry().topLeft();
-	QPoint bottomRight = geometry().bottomRight();
+	QRect oldRect = geometry();
+	QPoint topLeft = oldRect.topLeft();
+	QPoint bottomRight = oldRect.bottomRight();
 
-	QPoint diffPos = event->pos() - m_pMousePressPos;
+	QPoint diffPos = event->globalPos() - m_pPressDragGlobalPos;
+	m_pPressDragGlobalPos = event->globalPos();
 
 	switch (m_eMousePos)
 	{
@@ -235,19 +331,28 @@ void BasicDialog::changeSize(QMouseEvent * event)
 		break;
 	case BasicDialog::MP_TopRight:
 		topLeft.setY(topLeft.y() + diffPos.y());
-		bottomRight
+		bottomRight.setX(bottomRight.x() + diffPos.x());
 		break;
 	case BasicDialog::MP_Right:
+		bottomRight.setX(bottomRight.x() + diffPos.x());
 		break;
 	case BasicDialog::MP_BottomRight:
+		bottomRight += diffPos;
 		break;
 	case BasicDialog::MP_Bottom:
+		bottomRight.setY(bottomRight.y() + diffPos.y());
 		break;
 	case BasicDialog::MP_BottomLeft:
+		topLeft.setX(topLeft.x() + diffPos.x());
+		bottomRight.setY(bottomRight.y() + diffPos.y());
 		break;
 	default:
 		break;
 	}
 
-	setGeometry(QRect(topLeft, bottomRight));
+	QRect newRect(topLeft, bottomRight);
+	if (newRect != oldRect)
+	{
+		setGeometry(newRect);
+	}
 }
