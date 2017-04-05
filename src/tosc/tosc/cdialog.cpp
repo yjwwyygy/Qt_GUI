@@ -358,7 +358,8 @@ void CDialog::paintEvent(QPaintEvent * evt)
 void CDialog::showEvent(QShowEvent *evt)
 {
 	ensurePolished();
-	adjustPosition();
+	//adjustPosition();
+	layoutTitleBarWidgets();
 	return QDialog::showEvent(evt);
 }
 
