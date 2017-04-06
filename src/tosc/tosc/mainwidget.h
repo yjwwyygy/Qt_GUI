@@ -2,6 +2,7 @@
 #define MAINWIDGET_H
 
 #include "basicdialog.h"
+#include <QMap>
 
 class QHBoxLayout;
 class QButtonGroup;
@@ -32,7 +33,10 @@ protected:
 	virtual void layoutTitleBarWidgets();
 
 private:
+	// 设置UI
 	void setupUi();
+
+	// 设置状态条
 	void setupStatusBar();
 
 	/* 调整标签栏按钮宽度 */
@@ -71,6 +75,8 @@ private:
 
 	int m_nTabBtnWidth = 160;
 	int m_nTabBtnHeight = 29;			// 标题栏按钮高度
+
+	QMap<QString, QWidget*> m_oViewMap;
 };
 
 #endif // MAINWIDGET_H

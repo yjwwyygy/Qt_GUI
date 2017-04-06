@@ -167,38 +167,19 @@ void MainWidget::adjustTabBarWidth()
 void MainWidget::selectedTabs(TabButton * pTabButton)
 {
 	m_pTabBar->setEnabled(false);
-	ON_SCOPE_EXIT([&]() {
-		m_pTabBar->setEnabled(true);
-	});
 
-	m_pCurrentTab = pTabButton;
-	m_pCurrentTab->setChecked(true);
+	pTabButton->setChecked(true);
+	QString strViewId = pTabButton->text();
 
-	// 如果没有创建则先创建
-	WorkView* pViewWin = nullptr;
-	if (m_pCurrentTab->userObject() == nullptr)
-	{
-		int nViewId = m_pCurrentTab->tabId().toInt();
-		WorkViewCfg* pViewCfg = m_pWorkbenchCfg->find(nViewId);
-		if (nullptr == pViewCfg)
-		{
-			KMsgDlg::warning(KSL("视图配置未找到，无法创建。"));
-			return;
-		}
-		pViewWin = createViewWindow(pViewCfg);
-		m_pCurrentTab->setUserObject(pViewWin);
-	}
-	else
-	{
-		pViewWin = qobject_cast<WorkView*>(m_pCurrentTab->userObject());
-		K_ASSERT(pViewWin);
-	}
+	QWidget* pViewWin = m_oViewMap[strViewId];
+
 	// 切换视图
 	if (m_pViewStack->currentWidget() != pViewWin)
 	{
 		m_pViewStack->setCurrentWidget(pViewWin);
 	}
-	pViewWin->activeWorkView();
+
+	m_pTabBar->setEnabled(true);
 }
 
 void MainWidget::initTestData()
@@ -255,6 +236,11 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 		if (m_tabs[i]->text() == tabId)
 		{
 			m_tabs[i]->setChecked(true);
+			QWidget *pView = m_oViewMap[tabId];
+			if (m_pViewStack->currentWidget() != pView)
+			{
+				m_pViewStack->setCurrentWidget(pView);
+			}
 			return;
 		}
 	}
@@ -265,7 +251,13 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 	pTabBtn->setAutoRaise(true);
 	pTabBtn->setMaximumWidth(m_nTabBtnWidth);
 	pTabBtn->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
-	connect(pTabBtn, SIGNAL(clicked()), this, SLOT(doTabButtonClicked()), Qt::DirectConnection);
+	connect(pTabBtn, SIGNAL(clicked()), this, SLOT(doTabButtonClicked()));
+
+	QLabel *label = new QLabel(tabId);
+	m_oViewMap[tabId] = label;
+
+	m_pViewStack->addWidget(label);
+	m_pViewStack->setCurrentWidget(label);
 
 	//pTabBtn->addInterButton(Tab_Close_Button_Id, AlignPositon::apVRightCenter, QPoint(6, 0),
 	//	QIcon(RS_Tab_Close), QIcon(RS_Tab_Close_Hover));
