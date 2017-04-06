@@ -1,7 +1,10 @@
 #ifndef BASICDIALOG_H
 #define BASICDIALOG_H
 
+#include "frame_global.h"
 #include <QDialog>
+
+class QToolButton;
 
 /* 窗口标题栏组件项 */
 struct TitleBarWidgetItem
@@ -21,7 +24,7 @@ typedef QList<TitleBarWidgetItem> TitleBarWidgetList;
 /*
 	BasicDialog
 */
-class BasicDialog : public QDialog
+class FRAME_EXPORT BasicDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -33,27 +36,68 @@ public:
 	virtual QSize sizeHint() const;
 	virtual QSize minimumSizeHint() const;
 
+	// 禁止ESC键关闭窗体
+	bool forbidEscapeKeyClose() const;
+	void setForbidEscapeKeyClose(bool value);
+
+	// 图标/标题文字
+	bool isIconVisible() const;
+	void setIconVisible(bool value);
+	bool isTitleVisible() const;
+	void setTitleVisible(bool value);
+
 	// 可缩放
-	bool isResizable();
+	bool isResizable() const;
 	void setResizable(bool value);
 
 	// 最小/最大/关闭按钮状态
-	bool isMinimumButtonVisible();
+	bool isMinimumButtonVisible() const;
 	void setMinimumButtonVisible(bool value);
-	bool isMaximumButtonVisible();
+	bool isMaximumButtonVisible() const;
 	void setMaximumButtonVisible(bool value);
-	bool isCloseButtonVisible();
+	bool isCloseButtonVisible() const;
 	void setCloseButtonVisible(bool value);
 
+	// 添加标题栏
+	void addTitleBarWidget(QWidget* pWidget, int nAlign = Qt::AlignRight,
+		int nSpacing = 0, bool bAutoFillRest = false);
 
 protected:
 	virtual void mousePressEvent(QMouseEvent *event);
 	virtual void mouseMoveEvent(QMouseEvent *event);
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void mouseDoubleClickEvent(QMouseEvent * event);
+	virtual void showEvent(QShowEvent *event);
+	virtual void paintEvent(QPaintEvent *event);
+	virtual bool event(QEvent* event);
+	virtual void keyPressEvent(QKeyEvent * event);
+
+	virtual void drawBorder(QPainter& painter);
+	virtual void drawTitleBar(QPainter& painter);
+	virtual void drawTitleText(QPainter& painter, const QString& sTitle);
+
+	int titleTextRightPos() const;
+	int titleTextMaxRightPos() const;
+
+	// 计算标题栏的左起始位置
+	virtual int calcTitleBarLeftBeginPosition() const;
 
 	// 布局标题栏部件
 	virtual void layoutTitleBarWidgets();
+
+	// 标题，左、上、右、下 边框的矩形区域
+	QRect titleRect() const;
+	QRect leftBorderRect() const;
+	QRect topBorderRect() const;
+	QRect rightBorderRect() const;
+	QRect bottomBorderRect() const;
+
+	int borderWidth() const;
+	int titleBarHeight() const;
+	inline QColor borderColor() const;
+	inline QColor borderActiveColor() const;
+	inline QColor shadowColor() const;
+	inline QColor titleFontColor() const;
 
 protected slots:
 	virtual void doActionCloseTriggered();
@@ -70,13 +114,6 @@ private:
 	// 判断鼠标是否点击在边框上
 	bool isMouseOnBorder(const QPoint &pos);
 
-	// 标题，左、上、右、下 边框的矩形区域
-	QRect titleRect() const;
-	QRect leftBorderRect() const;
-	QRect topBorderRect() const;
-	QRect rightBorderRect() const;
-	QRect bottomBorderRect() const;
-
 	// 设置光标
 	void setMouseResizeCursor(const QPoint &pos);
 
@@ -86,10 +123,12 @@ private:
 private:
 	int m_nShadowWidth;						// 边框阴影的宽度
 	int m_nBorderWidth;						// 边框的宽度
-	int m_nTitleBarHeight	= 33;			// 标题栏的高度
-	int m_nTitleBtnHeight	= 29;			// 标题栏按钮宽度
-	int m_nTitleBtnWidth	= 35;			// 标题栏按钮高度(关闭按钮+8)
+	int m_nTitleBarHeight	= 35;			// 标题栏的高度
+	int m_nTitleBtnHeight	= 29;			// 标题栏按钮高度
+	int m_nTitleBtnWidth	= 35;			// 标题栏按钮宽度(关闭按钮+8)
 
+	bool m_bIconVisible		= true;			// 是否显示Icon
+	bool m_bTitleVisible	= true;			// 是否显示标题文字
 	bool m_bResizable		= true;			// 是否可缩放
 	bool m_bMinBtnVisible	= true;			// 是否显示最小化按钮
 	bool m_bMaxBtnVisible	= true;			// 是否显示最大化按钮
@@ -115,6 +154,17 @@ private:
 	QToolButton* m_pSysCloseButton;			// 关闭按钮
 
 	TitleBarWidgetList m_oTitleBarWidgets;	// 标题栏的部件列表
+
+	QColor m_cTitleFontColor = QColor(255, 255, 255);
+	QColor m_cBorderColor = QColor(29, 102, 183);
+	QColor m_cBorderActiveColor = QColor(12, 145, 226);
+	QColor m_cShadowColor = QColor(0, 0, 0);
+	QSize m_oIconSize = QSize(16, 16);
+
+	int m_nTitleTextRightPos = 0;			// 标题文字的实际右边坐标
+	int m_nTitleTextMaxRightPos = 0;		// 标题文字的最右边坐标
+
+	bool m_bForbidEscapeKeyClose = false;		// 是否忽略EscapeKey,不忽略则按Esc关闭窗口
 };
 
 #endif // BASICDIALOG_H

@@ -47,16 +47,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_mainwidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_mainwidget.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_cdialog.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_tabbutton.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_cdialog.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_tabbutton.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="cdialog.cpp">
+    <ClCompile Include="tabbutton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -64,25 +61,8 @@
     <CustomBuild Include="mainwidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="mainwidget.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="cdialog.h">
+    <CustomBuild Include="tabbutton.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="macro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="winres.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cfocusswitchhelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wintools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

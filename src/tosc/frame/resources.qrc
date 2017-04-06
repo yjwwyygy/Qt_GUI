@@ -21,5 +21,6 @@
         <file alias="win_title_bg">Resources/images/win/win_title_bg.png</file>
         <file alias="win_title_bg_active">Resources/images/win/win_title_bg_active.png</file>
         <file alias="win_title_bg_deactive">Resources/images/win/win_title_bg_deactive.png</file>
+        <file alias="tosc/win_icon.ico">Resources/images/win/tosc/win_icon.ico</file>
     </qresource>
 </RCC>

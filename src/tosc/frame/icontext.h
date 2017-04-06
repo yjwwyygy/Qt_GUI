@@ -3,11 +3,11 @@
 
 #include "frame_global.h"
 
-class FRAME_EXPORT CContext
+class FRAME_EXPORT IContext
 {
 public:
-	CContext();
-	virtual ~CContext();
+	IContext();
+	virtual ~IContext();
 
 	/* 系统信息 */
 	virtual int userId() const = 0;

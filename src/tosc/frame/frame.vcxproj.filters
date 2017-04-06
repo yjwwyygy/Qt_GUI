@@ -23,13 +23,35 @@
       <Extensions>moc;h;cpp</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{df6d2d61-dfcb-45a3-8203-d7cfae35c516}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{690d311b-bd5f-49ea-8aed-6dea4307e849}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ccontext.cpp">
+    <ClCompile Include="icontext.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="basicdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_basicdialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_basicdialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_resources.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,8 +61,19 @@
     <ClInclude Include="frame_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ccontext.h">
+    <ClInclude Include="icontext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="winres.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="basicdialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="resources.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
