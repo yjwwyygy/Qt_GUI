@@ -13,6 +13,8 @@ class QLabel;
 class QToolButton;
 class QTreeWidgetItem;
 class TabButton;
+class IViewPage;
+class LoginWidget;
 
 class MainWidget : public BasicDialog
 {
@@ -21,6 +23,12 @@ class MainWidget : public BasicDialog
 public:
 	MainWidget(QWidget *parent = 0);
 	~MainWidget();
+
+	/* 创建主界面UI和数据,在Main中调用 */
+	bool createMainWindow();
+
+	/* 登录系统 */
+	bool login();
 
 protected:
 	/* 覆盖：定秒定时器触发事件 */
@@ -39,11 +47,14 @@ private:
 	// 设置状态条
 	void setupStatusBar();
 
-	/* 调整标签栏按钮宽度 */
+	// 调整标签栏按钮宽度
 	void adjustTabBarWidth();
 
-	/* 选择指定视图为当前视图 */
+	// 选择指定视图为当前视图
 	void selectedTabs(TabButton* pTabButton);
+
+	// 创建视图页面
+	IViewPage *createViewPage(const QString &viewId);
 
 	void initTestData();
 
@@ -52,6 +63,12 @@ private slots:
 
 	/* 标签按钮clicked()信号处理槽 */
 	void doTabButtonClicked();
+
+	/* 标签关闭按钮点击信号处理槽 */
+	void doTabCloseClicked();
+
+	// TODO: test
+	void doLogin(QString userId, QString userPwd);
 
 private:
 	// Tap条
@@ -74,9 +91,13 @@ private:
 	QList<TabButton*> m_tabs;
 
 	int m_nTabBtnWidth = 160;
-	int m_nTabBtnHeight = 29;			// 标题栏按钮高度
+	int m_nTabBtnHeight = 25;			// 标题栏按钮高度
 
-	QMap<QString, QWidget*> m_oViewMap;
+	QMap<QString, IViewPage*> m_oViewMap;
+
+	TabButton *m_pCurTabBtn;			// 当前选中的Tap按钮
+
+	LoginWidget *m_pLoginWidget;
 };
 
 #endif // MAINWIDGET_H

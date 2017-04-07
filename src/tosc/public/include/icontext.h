@@ -10,7 +10,7 @@ public:
 	virtual ~IContext();
 
 	/* 系统信息 */
-	virtual int userId() const = 0;
+	virtual QString userId() const = 0;
 };
 
 #endif

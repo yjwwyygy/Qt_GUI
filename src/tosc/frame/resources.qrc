@@ -23,4 +23,17 @@
         <file alias="win_title_bg_deactive">Resources/images/win/win_title_bg_deactive.png</file>
         <file alias="tosc/win_icon.ico">Resources/images/win/tosc/win_icon.ico</file>
     </qresource>
+    <qresource prefix="/tos/img/main">
+        <file alias="tab_close">Resources/images/main/tab_close.png</file>
+        <file alias="tab_close_hover">Resources/images/main/tab_close_hover.png</file>
+        <file alias="tab_close_pressed">Resources/images/main/tab_close_pressed.png</file>
+    </qresource>
+    <qresource prefix="/qss">
+        <file alias="main.qss">Resources/main.qss</file>
+        <file alias="login.qss">Resources/login.qss</file>
+    </qresource>
+    <qresource prefix="/tosc/img/login">
+        <file alias="passwd">Resources/images/login/passwd.png</file>
+        <file alias="user">Resources/images/login/user.png</file>
+    </qresource>
 </RCC>

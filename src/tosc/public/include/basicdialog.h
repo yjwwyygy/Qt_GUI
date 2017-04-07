@@ -123,7 +123,7 @@ private:
 private:
 	int m_nShadowWidth;						// 边框阴影的宽度
 	int m_nBorderWidth;						// 边框的宽度
-	int m_nTitleBarHeight	= 35;			// 标题栏的高度
+	int m_nTitleBarHeight	= 40;			// 标题栏的高度
 	int m_nTitleBtnHeight	= 29;			// 标题栏按钮高度
 	int m_nTitleBtnWidth	= 35;			// 标题栏按钮宽度(关闭按钮+8)
 
@@ -159,7 +159,7 @@ private:
 	QColor m_cBorderColor = QColor(29, 102, 183);
 	QColor m_cBorderActiveColor = QColor(12, 145, 226);
 	QColor m_cShadowColor = QColor(0, 0, 0);
-	QSize m_oIconSize = QSize(16, 16);
+	QSize m_oIconSize = QSize(20, 20);
 
 	int m_nTitleTextRightPos = 0;			// 标题文字的实际右边坐标
 	int m_nTitleTextMaxRightPos = 0;		// 标题文字的最右边坐标

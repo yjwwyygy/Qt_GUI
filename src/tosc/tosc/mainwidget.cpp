@@ -9,7 +9,13 @@
 #include <QDateTime>
 #include <QToolButton>
 #include <QTimerEvent>
+#include <QFile>
+#include <QTextStream>
+#include <QApplication>
 #include "tabbutton.h"
+#include "winres.h"
+#include "iviewpage.h"
+#include "loginwidget.h"
 
 MainWidget::MainWidget(QWidget *parent)
 	: BasicDialog(parent, 0, 3)
@@ -19,11 +25,36 @@ MainWidget::MainWidget(QWidget *parent)
 	m_nTimer = startTimer(1000, Qt::PreciseTimer);
 
 	initTestData();
+
+	m_pLoginWidget = new LoginWidget(nullptr);
+	connect(m_pLoginWidget, SIGNAL(reqLogin(QString, QString)), this, SLOT(doLogin(QString, QString)));
+	m_pLoginWidget->raise();
+	qApp->processEvents();
 }
 
 MainWidget::~MainWidget()
 {
 
+}
+
+bool MainWidget::createMainWindow()
+{
+	return true;
+}
+
+bool MainWidget::login()
+{
+	//m_pLoginWidget->login();
+	//if (m_pLoginForm->exec())
+	if (m_pLoginWidget->exec())
+	{
+		show();
+		activateWindow();
+
+		return true;
+	}
+
+	return false;
 }
 
 void MainWidget::timerEvent(QTimerEvent * evt)
@@ -64,6 +95,13 @@ void MainWidget::layoutTitleBarWidgets()
 
 void MainWidget::setupUi()
 {
+	QFile f(WRS_Main_Widget_Qss);
+	if (f.open(QIODevice::ReadOnly))
+	{
+		QTextStream in(&f);
+		setStyleSheet(in.readAll());
+	}
+
 	//setAttribute(Qt::WA_DeleteOnClose);
 	setResizable(true);
 	setMaximumButtonVisible(true);
@@ -168,18 +206,24 @@ void MainWidget::selectedTabs(TabButton * pTabButton)
 {
 	m_pTabBar->setEnabled(false);
 
-	pTabButton->setChecked(true);
-	QString strViewId = pTabButton->text();
+	m_pCurTabBtn = pTabButton;
+	m_pCurTabBtn->setChecked(true);
+	QString strViewId = m_pCurTabBtn->text();
 
-	QWidget* pViewWin = m_oViewMap[strViewId];
+	IViewPage* pViewPage = m_oViewMap[strViewId];
 
 	// 切换视图
-	if (m_pViewStack->currentWidget() != pViewWin)
+	if (m_pViewStack->currentWidget() != pViewPage)
 	{
-		m_pViewStack->setCurrentWidget(pViewWin);
+		m_pViewStack->setCurrentWidget(pViewPage);
 	}
 
 	m_pTabBar->setEnabled(true);
+}
+
+IViewPage * MainWidget::createViewPage(const QString & viewId)
+{
+	return new IViewPage(this);
 }
 
 void MainWidget::initTestData()
@@ -217,10 +261,62 @@ void MainWidget::initTestData()
 
 void MainWidget::doTabButtonClicked()
 {
-	if (TabButton* tab = qobject_cast<TabButton*>(sender()))
+	if (TabButton* tabBtn = qobject_cast<TabButton*>(sender()))
 	{
-		selectedTabs(tab);
+		selectedTabs(tabBtn);
 	}
+}
+
+void MainWidget::doTabCloseClicked()
+{
+	if (TabButton* tabBtn = qobject_cast<TabButton*>(sender()))
+	{
+		IViewPage *pViewPage = m_oViewMap[tabBtn->text()];
+
+		if (tabBtn != m_pCurTabBtn)
+		{
+			m_pViewStack->removeWidget(pViewPage);
+			m_tabs.removeOne(tabBtn);
+			m_pTabBtnGroup->removeButton(tabBtn);
+			m_pTabLayout->removeWidget(tabBtn);
+		}
+		else
+		{
+			if (m_tabs.size() == 1)
+			{ // 最后一页
+				m_pViewStack->removeWidget(pViewPage);
+				m_tabs.removeOne(tabBtn);
+				m_pTabBtnGroup->removeButton(tabBtn);
+				m_pTabLayout->removeWidget(tabBtn);
+			}
+			else
+			{
+				int n = m_tabs.indexOf(tabBtn);
+				m_pViewStack->removeWidget(pViewPage);
+				m_tabs.removeOne(tabBtn);
+				m_pTabBtnGroup->removeButton(tabBtn);
+				m_pTabLayout->removeWidget(tabBtn);
+
+				// 若关闭当前页，总是跳到前面一页
+				if (n == 0)
+					selectedTabs(m_tabs[0]);
+				else
+					selectedTabs(m_tabs[n-1]);
+			}
+		}
+
+		// 手动删除对象
+		delete tabBtn;
+		delete pViewPage;
+
+		// 调整菜单条位置
+		adjustTabBarWidth();
+	}
+}
+
+void MainWidget::doLogin(QString userId, QString userPwd)
+{
+	m_pLoginWidget->slotLoginReturn(0, "");
 }
 
 void MainWidget::doOpenView(QTreeWidgetItem *item)
@@ -228,6 +324,7 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 	if (item->childCount() > 0)
 		return;
 
+	// 获取ID
 	QString tabId = item->text(0);
 
 	// 通过ID查找按钮
@@ -235,7 +332,8 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 	{
 		if (m_tabs[i]->text() == tabId)
 		{
-			m_tabs[i]->setChecked(true);
+			m_pCurTabBtn = m_tabs[i];
+			m_pCurTabBtn->setChecked(true);
 			QWidget *pView = m_oViewMap[tabId];
 			if (m_pViewStack->currentWidget() != pView)
 			{
@@ -245,6 +343,7 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 		}
 	}
 
+	// 创建新的Tab按钮
 	TabButton* pTabBtn = new TabButton(m_pTabBar);
 	pTabBtn->setText(tabId);
 	pTabBtn->setCheckable(true);
@@ -252,27 +351,25 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 	pTabBtn->setMaximumWidth(m_nTabBtnWidth);
 	pTabBtn->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 	connect(pTabBtn, SIGNAL(clicked()), this, SLOT(doTabButtonClicked()));
+	connect(pTabBtn, SIGNAL(tabCloseClicked()), this, SLOT(doTabCloseClicked()));
 
-	QLabel *label = new QLabel(tabId);
-	m_oViewMap[tabId] = label;
+	// 创建视图
+	// TODO: 测试用
+	IViewPage *pViewPage = createViewPage(tabId);
+	m_oViewMap[tabId] = pViewPage;
 
-	m_pViewStack->addWidget(label);
-	m_pViewStack->setCurrentWidget(label);
+	// 将视图加入到主窗口区
+	m_pViewStack->addWidget(pViewPage);
+	m_pViewStack->setCurrentWidget(pViewPage);
 
-	//pTabBtn->addInterButton(Tab_Close_Button_Id, AlignPositon::apVRightCenter, QPoint(6, 0),
-	//	QIcon(RS_Tab_Close), QIcon(RS_Tab_Close_Hover));
-	//pTabBtn->installEventFilter(this);
-	//connect(pTabBtn, SIGNAL(onInterButtonClicked(const QString)),
-	//	this, SLOT(doTabCloseButtonClicked(const QString)),
-	//	Qt::DirectConnection);
-
+	// 将Tab按钮加入到标题条中
 	m_pTabBtnGroup->addButton(pTabBtn);
 	m_tabs.append(pTabBtn);
 	m_pTabLayout->addWidget(pTabBtn);
 	pTabBtn->setChecked(true);
 
-	int nWidth = m_nTabBtnWidth * m_tabs.size();
-	m_pTabBar->resize(qMin(nWidth, m_pTabBar->maximumWidth()), m_nTabBtnHeight);
-	// 刷新标签栏,否则界面没刷新
-	update(titleRect());
+	m_pCurTabBtn = pTabBtn;
+
+	// 调整菜单条的宽度
+	adjustTabBarWidth();
 }

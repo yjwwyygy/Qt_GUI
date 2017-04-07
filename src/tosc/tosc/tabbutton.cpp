@@ -11,7 +11,7 @@ TabButton::TabButton(QWidget *parent)
 
 	setContentsMargins(0, 0, 50, 0);
 
-	connect(m_clearButton, &QToolButton::clicked, this, &TabButton::tabClose);
+	connect(m_clearButton, &QToolButton::clicked, this, &TabButton::tabCloseClicked);
 }
 
 TabButton::~TabButton()

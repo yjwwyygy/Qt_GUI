@@ -1,0 +1,68 @@
+/*******************************************************************************
+             主窗口及其子部件样式设置                 
+*******************************************************************************/
+
+/**** Tab关闭按钮 ****/
+QToolButton#tab-button-close
+{
+  background: transparent;
+  image: url(:/tos/img/main/tab_close);
+}
+
+QToolButton#tab-button-close:hover
+{
+  background: transparent;
+  image: url(:/tos/img/main/tab_close_pressed);
+}
+
+QToolButton#tab-button-close:pressed
+{
+  background: transparent;
+  image: url(:/tos/img/main/tab_close_pressed);
+}
+
+/**** 菜单条样式 ****/
+MainWidget QWidget#page-tab-bar
+{
+  background-color: transparent;
+}
+MainWidget QWidget#page-tab-bar>TabButton
+{
+  color: rgb(0, 0, 0);
+  border: 0px;
+  background-color: rgb(89, 180, 250);
+}
+MainWidget QWidget#page-tab-bar>TabButton:hover
+{
+  color: rgb(10, 10, 10);
+  background-color: rgb(133, 205, 255);
+}
+MainWidget QWidget#page-tab-bar>TabButton:checked
+{
+  color: rgb(10, 10, 10);
+  background-color: rgb(169, 213, 251);
+}
+
+/*------------------------------------------------------------------------------
+  右侧视图区域
+------------------------------------------------------------------------------*/
+MainWidget QStackedWidget#view-stack
+{
+  /*border:1px solid rgb(184, 206, 235);*/
+  /*background-color: rgb(49, 82, 121);*/
+}
+
+/* 状态条 */
+MainWidget QStatusBar#main-statusbar
+{
+  /*border-radius: 4px;*/
+  border:1px solid rgb(184, 206, 235);
+  /*background-color: rgb(89, 180, 250);*/
+}
+
+MainWidget QStatusBar>QLabel
+{
+  border-radius: 4px;
+  border:1px solid rgb(184, 206, 235);
+  /*background-color: rgb(89, 180, 250);*/
+}

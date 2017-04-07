@@ -14,4 +14,8 @@
 #define WRS_Win_Button_Icon_Dropdown		":/tosc/img/win/win_dropdown"
 #define WRS_Win_Button_Icon_Setting			":/tosc/img/win/win_setting"
 
+/* 各窗口部件的样式 */
+#define WRS_Main_Widget_Qss					":/qss/main.qss"
+#define WRS_Login_Widget_Qss				":/qss/login.qss"
+
 #endif // WINRES_H

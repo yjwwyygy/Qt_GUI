@@ -16,7 +16,7 @@ public:
 	void setId(int id);
 
 signals:
-	void tabClose();
+	void tabCloseClicked();
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
