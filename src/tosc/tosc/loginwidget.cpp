@@ -54,10 +54,10 @@ void LoginWidget::slotLoginClicked()
 	ui.widget_Login->setHidden(true);
 	ui.widget_progress->setHidden(false);
 
-	emit reqLogin(userName, password);
+	emit onLogin(userName, password);
 }
 
-void LoginWidget::slotLoginReturn(int retCode, QString msg)
+void LoginWidget::doLoginReturn(int retCode, const QString &msg)
 {
 	if (retCode == 0)
 	{
@@ -70,8 +70,10 @@ void LoginWidget::slotLoginReturn(int retCode, QString msg)
 	}
 }
 
-void LoginWidget::slotProgress(int progress, QString msg)
+void LoginWidget::doShowProgressMsg(int progress, const QString &msg)
 {
 	ui.pbar_Progress->setValue(progress);
 	ui.lbl_ProgressMsg->setText(msg);
+
+	qApp->processEvents();
 }

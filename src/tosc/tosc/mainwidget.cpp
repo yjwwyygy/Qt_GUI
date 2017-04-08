@@ -12,10 +12,13 @@
 #include <QFile>
 #include <QTextStream>
 #include <QApplication>
+#include <QDebug>
 #include "tabbutton.h"
 #include "winres.h"
 #include "iviewpage.h"
 #include "loginwidget.h"
+#include "servicemoduemgr.h"
+#include "ksqlconfig.h"
 
 MainWidget::MainWidget(QWidget *parent)
 	: BasicDialog(parent, 0, 3)
@@ -24,10 +27,10 @@ MainWidget::MainWidget(QWidget *parent)
 
 	m_nTimer = startTimer(1000, Qt::PreciseTimer);
 
-	initTestData();
+	m_pServiceModueMgr = new ServiceModueMgr(this);
 
 	m_pLoginWidget = new LoginWidget(nullptr);
-	connect(m_pLoginWidget, SIGNAL(reqLogin(QString, QString)), this, SLOT(doLogin(QString, QString)));
+	connect(m_pLoginWidget, SIGNAL(onLogin(const QString&, const QString&)), this, SLOT(doLogin(const QString&, const QString&)));
 	m_pLoginWidget->raise();
 	qApp->processEvents();
 }
@@ -39,13 +42,14 @@ MainWidget::~MainWidget()
 
 bool MainWidget::createMainWindow()
 {
+	// 加载菜单
+	LoadMenus();
+
 	return true;
 }
 
 bool MainWidget::login()
 {
-	//m_pLoginWidget->login();
-	//if (m_pLoginForm->exec())
 	if (m_pLoginWidget->exec())
 	{
 		show();
@@ -127,7 +131,7 @@ void MainWidget::setupUi()
 
 	// 主布局器
 	setLayout(new QVBoxLayout(this));
-	layout()->setContentsMargins(0, 0, 0, 0);
+	layout()->setContentsMargins(1, 1, 0, 0);
 	layout()->setSpacing(0);
 	// 主布局器--客户区
 	QFrame* pClientArea = new QFrame(this);
@@ -148,6 +152,8 @@ void MainWidget::setupUi()
 	m_pViewTree->setObjectName(QStringLiteral("view-list"));
 	m_pViewTree->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 	m_pViewTree->installEventFilter(this);
+	m_pViewTree->setHeaderHidden(true);
+	m_pViewTree->setColumnCount(1);
 	pSplitter->addWidget(m_pViewTree);
 	connect(m_pViewTree, SIGNAL(itemPressed(QTreeWidgetItem *, int)), this, SLOT(doOpenView(QTreeWidgetItem *)));
 	// 主布局器--客户区--布局器--水平分裂期--右侧视图堆栈
@@ -208,9 +214,9 @@ void MainWidget::selectedTabs(TabButton * pTabButton)
 
 	m_pCurTabBtn = pTabButton;
 	m_pCurTabBtn->setChecked(true);
-	QString strViewId = m_pCurTabBtn->text();
+	int nViewId = m_pCurTabBtn->getId();
 
-	IViewPage* pViewPage = m_oViewMap[strViewId];
+	IViewPage* pViewPage = m_oViewMap[nViewId];
 
 	// 切换视图
 	if (m_pViewStack->currentWidget() != pViewPage)
@@ -221,40 +227,75 @@ void MainWidget::selectedTabs(TabButton * pTabButton)
 	m_pTabBar->setEnabled(true);
 }
 
-IViewPage * MainWidget::createViewPage(const QString & viewId)
+IViewPage * MainWidget::createViewPage(int menuId)
 {
-	return new IViewPage(this);
+	return m_pServiceModueMgr->loadModule(m_oMenuItems[menuId]->m_sLibName);
 }
 
-void MainWidget::initTestData()
+void MainWidget::LoadMenus()
 {
-	m_pViewTree->setHeaderHidden(true);
-	m_pViewTree->setColumnCount(1);
+	// 从本地配置中加载菜单项
+	KSQLConfig *pSqlConfig = new KSQLConfig("data");
+	if (!pSqlConfig->openDatabase("systemdb.db"))
+	{
+		qDebug() << "openDatabase error." << pSqlConfig->lastError();
+		return;
+	}
 
-	QList<QTreeWidgetItem *> menus;
+	if (!pSqlConfig->execQuery("select * from sys_menu order by show_no"))
+	{
+		qDebug() << "execQuery error.";
+		return;
+	}
 
-	QTreeWidgetItem *nemu = new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("产品")));
-	QList<QTreeWidgetItem *> menuItems;
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("产品信息管理"))));
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("产品信息复核"))));
-	nemu->addChildren(menuItems);
-	menus.append(nemu);
+	QTreeWidgetItem *menu, *menuItem;
+	QMap<QString, QTreeWidgetItem*> parentMap;
+	QMap<QString, QTreeWidgetItem*>::iterator itorParentMap;
 
-	menuItems.clear();
-	nemu = new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("报表")));
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("管理型报表"))));
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("结构式报表"))));
-	nemu->addChildren(menuItems);
-	menus.append(nemu);
+	int nMenuId;
+	QString sMenuName, sMenuGroup, sIconName, sLibName;
+	for (size_t i = 0; i < pSqlConfig->recordCount(); i++)
+	{
+		nMenuId = pSqlConfig->getValue("menu_id").toInt();
+		sMenuName = pSqlConfig->getValue("menu_name").toString();
+		sMenuGroup = pSqlConfig->getValue("menu_group").toString();
+		sIconName = pSqlConfig->getValue("icon_name").toString();
+		sLibName = pSqlConfig->getValue("lib_name").toString();
 
-	menuItems.clear();
-	nemu = new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("风控")));
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("风控参数设置"))));
-	menuItems.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QStringLiteral("风控触发查询"))));
-	nemu->addChildren(menuItems);
-	menus.append(nemu);
+		// 验证是否有此菜单权限
+		//if (checkMenuRight(nMenuId))
+		//{
+		//	pSqlConfig->next();
+		//	continue;
+		//}
 
-	m_pViewTree->insertTopLevelItems(0, menus);
+		// 创建树型菜单
+		if ((itorParentMap = parentMap.find(sMenuGroup)) == parentMap.end())
+		{
+			menu = new QTreeWidgetItem((QTreeWidget*)0, QStringList(sMenuGroup));
+			m_pViewTree->addTopLevelItem(menu);
+
+			parentMap[sMenuGroup] = menu;
+		}
+		else
+		{
+			menu = itorParentMap.value();
+		}
+
+		menuItem = new QTreeWidgetItem((QTreeWidget*)0, QStringList(sMenuName));
+		menuItem->setData(0, Qt::UserRole, nMenuId);
+		menu->addChild(menuItem);
+
+		MenuItem *pMenuItem = new MenuItem;
+		pMenuItem->m_nMenuId = nMenuId;
+		pMenuItem->m_sMenuName = sMenuName;
+		pMenuItem->m_sIconName = sIconName;
+		pMenuItem->m_sLibName = sLibName;
+
+		m_oMenuItems[nMenuId] = pMenuItem;
+
+		pSqlConfig->next();
+	}
 
 	m_pViewTree->expandAll();
 }
@@ -271,7 +312,7 @@ void MainWidget::doTabCloseClicked()
 {
 	if (TabButton* tabBtn = qobject_cast<TabButton*>(sender()))
 	{
-		IViewPage *pViewPage = m_oViewMap[tabBtn->text()];
+		IViewPage *pViewPage = m_oViewMap[tabBtn->getId()];
 
 		if (tabBtn != m_pCurTabBtn)
 		{
@@ -314,9 +355,12 @@ void MainWidget::doTabCloseClicked()
 	}
 }
 
-void MainWidget::doLogin(QString userId, QString userPwd)
+void MainWidget::doLogin(const QString &userId, const QString &userPwd)
 {
-	m_pLoginWidget->slotLoginReturn(0, "");
+	// 模拟执行登录
+	// ...
+
+	m_pLoginWidget->doLoginReturn(0, "");
 }
 
 void MainWidget::doOpenView(QTreeWidgetItem *item)
@@ -325,16 +369,16 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 		return;
 
 	// 获取ID
-	QString tabId = item->text(0);
+	int menuId = item->data(0, Qt::UserRole).toInt();
 
 	// 通过ID查找按钮
 	for (int i = 0; i < m_tabs.size(); i++)
 	{
-		if (m_tabs[i]->text() == tabId)
+		if (m_tabs[i]->getId() == menuId)
 		{
 			m_pCurTabBtn = m_tabs[i];
 			m_pCurTabBtn->setChecked(true);
-			QWidget *pView = m_oViewMap[tabId];
+			QWidget *pView = m_oViewMap[menuId];
 			if (m_pViewStack->currentWidget() != pView)
 			{
 				m_pViewStack->setCurrentWidget(pView);
@@ -343,24 +387,29 @@ void MainWidget::doOpenView(QTreeWidgetItem *item)
 		}
 	}
 
+	// 创建视图
+	IViewPage *pViewPage = createViewPage(menuId);
+	if (!pViewPage)
+	{
+		qDebug() << QStringLiteral("createViewPage error");
+		return;
+	}
+	m_oViewMap[menuId] = pViewPage;
+
+	// 将视图加入到主窗口区
+	m_pViewStack->addWidget(pViewPage);
+	m_pViewStack->setCurrentWidget(pViewPage);
+
 	// 创建新的Tab按钮
 	TabButton* pTabBtn = new TabButton(m_pTabBar);
-	pTabBtn->setText(tabId);
+	pTabBtn->setId(menuId);
+	pTabBtn->setText(m_oMenuItems[menuId]->m_sMenuName);
 	pTabBtn->setCheckable(true);
 	pTabBtn->setAutoRaise(true);
 	pTabBtn->setMaximumWidth(m_nTabBtnWidth);
 	pTabBtn->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 	connect(pTabBtn, SIGNAL(clicked()), this, SLOT(doTabButtonClicked()));
 	connect(pTabBtn, SIGNAL(tabCloseClicked()), this, SLOT(doTabCloseClicked()));
-
-	// 创建视图
-	// TODO: 测试用
-	IViewPage *pViewPage = createViewPage(tabId);
-	m_oViewMap[tabId] = pViewPage;
-
-	// 将视图加入到主窗口区
-	m_pViewStack->addWidget(pViewPage);
-	m_pViewStack->setCurrentWidget(pViewPage);
 
 	// 将Tab按钮加入到标题条中
 	m_pTabBtnGroup->addButton(pTabBtn);

@@ -15,6 +15,15 @@ class QTreeWidgetItem;
 class TabButton;
 class IViewPage;
 class LoginWidget;
+class ServiceModueMgr;
+
+struct MenuItem
+{
+	int m_nMenuId;
+	QString m_sMenuName;
+	QString m_sIconName;
+	QString m_sLibName;
+};
 
 class MainWidget : public BasicDialog
 {
@@ -54,9 +63,10 @@ private:
 	void selectedTabs(TabButton* pTabButton);
 
 	// 创建视图页面
-	IViewPage *createViewPage(const QString &viewId);
+	IViewPage *createViewPage(int menuId);
 
-	void initTestData();
+	// 加载菜单
+	void LoadMenus();
 
 private slots:
 	void doOpenView(QTreeWidgetItem *item);
@@ -68,7 +78,7 @@ private slots:
 	void doTabCloseClicked();
 
 	// TODO: test
-	void doLogin(QString userId, QString userPwd);
+	void doLogin(const QString &userId, const QString &userPwd);
 
 private:
 	// Tap条
@@ -93,11 +103,15 @@ private:
 	int m_nTabBtnWidth = 160;
 	int m_nTabBtnHeight = 25;			// 标题栏按钮高度
 
-	QMap<QString, IViewPage*> m_oViewMap;
+	QMap<int, IViewPage*> m_oViewMap;
 
 	TabButton *m_pCurTabBtn;			// 当前选中的Tap按钮
 
-	LoginWidget *m_pLoginWidget;
+	LoginWidget *m_pLoginWidget;		// 登录窗口
+
+	ServiceModueMgr *m_pServiceModueMgr;	// 模块管理器
+
+	QMap<int, MenuItem*> m_oMenuItems;
 };
 
 #endif // MAINWIDGET_H

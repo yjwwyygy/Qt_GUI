@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tosc", "tosc\tosc.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frame", "frame\frame.vcxproj", "{0560068A-074C-4A4F-9815-B1C4FFED6084}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cli_test", "cli_test\cli_test.vcxproj", "{83F3ADDB-80CA-4230-9141-91071C5D4EDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -24,6 +26,10 @@ Global
 		{0560068A-074C-4A4F-9815-B1C4FFED6084}.Debug|x86.Build.0 = Debug|Win32
 		{0560068A-074C-4A4F-9815-B1C4FFED6084}.Release|x86.ActiveCfg = Release|Win32
 		{0560068A-074C-4A4F-9815-B1C4FFED6084}.Release|x86.Build.0 = Release|Win32
+		{83F3ADDB-80CA-4230-9141-91071C5D4EDA}.Debug|x86.ActiveCfg = Debug|Win32
+		{83F3ADDB-80CA-4230-9141-91071C5D4EDA}.Debug|x86.Build.0 = Debug|Win32
+		{83F3ADDB-80CA-4230-9141-91071C5D4EDA}.Release|x86.ActiveCfg = Release|Win32
+		{83F3ADDB-80CA-4230-9141-91071C5D4EDA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

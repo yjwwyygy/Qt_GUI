@@ -3,14 +3,14 @@
 
 #include "frame_global.h"
 
+class IContext;
+extern IContext* gContext;
+
 class FRAME_EXPORT IContext
 {
 public:
 	IContext();
 	virtual ~IContext();
-
-	/* 系统信息 */
-	virtual QString userId() const = 0;
 };
 
 #endif

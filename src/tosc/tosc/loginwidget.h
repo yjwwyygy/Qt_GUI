@@ -6,16 +6,6 @@
 
 #include "basicdialog.h"
 
-enum ProgressDegree
-{
-	PD_FIRST = 0,
-	PD_SECOND = 20,
-	PD_THIRD = 40,
-	PD_FORTH = 60,
-	PD_FIFTH = 80,
-	PD_SIXED = 100,
-};
-
 class LoginWidget : public BasicDialog
 {
 	Q_OBJECT
@@ -25,14 +15,14 @@ public:
 	~LoginWidget();
 
 signals:
-	void reqLogin(QString userName, QString password);
+	void onLogin(const QString &userName, const QString &password);
 
 public slots:
 	// 登录校验槽
-	void slotLoginReturn(int retCode, QString info);
+	void doLoginReturn(int retCode, const QString &info);
 
 	// 登录进度条槽
-	void slotProgress(int progreee, QString titile);
+	void doShowProgressMsg(int progress, const QString &titile);
 
 private slots:
 	void slotLoginClicked();
